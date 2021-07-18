@@ -15,7 +15,7 @@ FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/adv
 FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
 
 Patch_OFRP_Settings() {
-if [ -f $FOXRECOVERY/ADVANCEDXML ]; then touch $FOXRECOVERY/ADVANCEDXML; else sed -i "320,356 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
+if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "336,372 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
 sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row5_2_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $FOXADVANCEDXML
 sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $FOXADVANCEDXML
 # sed -i "s/Roboto/GoogleSans/g" $FOXFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $FOXFONTXML
@@ -28,7 +28,7 @@ Default_OFRP_Settings() {
 cp -f $COMPILER/maintainer.png scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
 cp -f $COMPILER/busybox-$ARCH $FOXRECOVERY/Files
 cp -f $COMPILER/unrootmagisk.zip $FOXFILES/unrootmagisk.zip
-for f in "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $FOXFILES/$f ] || [ -d $FOXFILES/$f ]; then rm -rf $FOXFILES/$f; fi; done
+for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $FOXFILES/$f ] || [ -d $FOXFILES/$f ]; then rm -rf $FOXFILES/$f; fi; done
 }
 
 Default_OFRP_Vars() {
@@ -136,7 +136,7 @@ Build() {
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
 beryllium) VOFRP="$BUILD_DATE-(12)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(30)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+dipper) VOFRP="$BUILD_DATE-(20)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 vince) VOFRP="$BUILD_DATE-(5)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Name; exit 0;;
 esac
@@ -149,6 +149,8 @@ PBRP) cd scripts/PBRP;;
 esac
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
 # Compile it
+export PLATFORM_VERSION="16.1.0"
+export PLATFORM_SECURITY_PATCH="2099-12-31"
 export ALLOW_MISSING_DEPENDENCIES=true
 . build/envsetup.sh
 add_lunch_combo omni_$DEVICE-eng
@@ -158,3 +160,4 @@ lunch omni_$DEVICE-eng && mka recoveryimage
 }
 
 Build
+exit 0
