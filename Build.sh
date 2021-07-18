@@ -13,19 +13,23 @@ PBRPDEVICE="scripts/PBRP/device"
 FOXFONTXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
 FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
 FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
+FOXVARSXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
 FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
 
 Patch_OFRP_Settings() {
 if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "336,372 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
-sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $FOXADVANCEDXML
-sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $FOXADVANCEDXML
+sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row5_1a_y%\"\/>/g" $FOXADVANCEDXML
+sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row5_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $FOXADVANCEDXML
 # sed -i "s/Roboto/GoogleSans/g" $FOXFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $FOXFONTXML
 sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"0\"\/>/g" $FOXADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $FOXADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXADVANCEDXML
 sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $FOXADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $FOXFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXFILESXML
 sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $FOXFILESXML
-
+sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $FOXVARSXML
+sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $FOXVARSXML
+sed -i "s/value=\"\/data\/app\"/value=\"notset\"/g" $FOXVARSXML
+sed -i "s/<variable name=\"clock_style\" value=\"0\" persist=\"1\"\/>/<variable name=\"clock_style\" value=\"1\" persist=\"1\"\/>/g" $FOXVARSXML
 }
 
 Default_OFRP_Settings() {
