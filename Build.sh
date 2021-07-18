@@ -12,6 +12,7 @@ TWRPDEVICE="scripts/TWRP/device"
 PBRPDEVICE="scripts/PBRP/device"
 FOXFONTXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
 FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
+FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
 FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
 
 Patch_OFRP_Settings() {
@@ -22,6 +23,9 @@ sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/
 sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"0\"\/>/g" $FOXADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $FOXADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXADVANCEDXML
 sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $FOXADVANCEDXML
+sed -i "/name=\"{@more}\"/I,+4 d" $FOXFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXFILESXML
+sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $FOXFILESXML
+
 }
 
 Default_OFRP_Settings() {
