@@ -30,7 +30,7 @@ sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $FOXFILESXML
 
 Default_OFRP_Settings() {
 cp -f $COMPILER/maintainer.png scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
-cp -f $COMPILER/busybox-$ARCH $FOXRECOVERY/Files
+cp -f $COMPILER/busybox-$ARCH $FOXRECOVERY/Files/busybox
 cp -f $COMPILER/unrootmagisk.zip $FOXFILES/unrootmagisk.zip
 for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $FOXFILES/$f ] || [ -d $FOXFILES/$f ]; then rm -rf $FOXFILES/$f; fi; done
 }
