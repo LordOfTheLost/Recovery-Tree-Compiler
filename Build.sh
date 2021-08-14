@@ -10,6 +10,7 @@ FOXDEVICE="scripts/OFRP/device"
 SHRPDEVICE="scripts/SHRP/device"
 TWRPDEVICE="scripts/TWRP/device"
 PBRPDEVICE="scripts/PBRP/device"
+FOXLANGUAGES="scripts/OFRP/bootable/recovery/gui/theme/common/languages"
 FOXFONTXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
 FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
 FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
@@ -30,6 +31,13 @@ sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $FOXVARSXML
 sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $FOXVARSXML
 sed -i "s/value=\"\/data\/app\"/value=\"notset\"/g" $FOXVARSXML
 sed -i "s/<variable name=\"clock_style\" value=\"0\" persist=\"1\"\/>/<variable name=\"clock_style\" value=\"1\" persist=\"1\"\/>/g" $FOXVARSXML
+for tr in $(ls $FOXLANGUAGES); do
+sed -i "s/<string name=\"dalvik\">Dalvik \/ ART Cache<\/string>/<string name=\"dalvik\">Dalvik\/ART Cache<\/string>/g" $FOXLANGUAGES/$tr
+sed -i "s/<string name=\"system_image\">System (образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $FOXLANGUAGES/$tr
+sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $FOXLANGUAGES/$tr
+sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
+sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
+done
 }
 
 Default_OFRP_Settings() {
@@ -163,6 +171,9 @@ if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/
 # Compile it
 export PLATFORM_VERSION="16.1.0"
 export PLATFORM_SECURITY_PATCH="2099-12-31"
+export PLATFORM_VNDK_VERSION="29"
+export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
+export PLATFORM_SDK_VERSION="29"
 export ALLOW_MISSING_DEPENDENCIES=true
 . build/envsetup.sh
 add_lunch_combo omni_$DEVICE-eng
