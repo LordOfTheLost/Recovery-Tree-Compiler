@@ -20,7 +20,7 @@ FOXSDK="scripts/OFRP/build/make/core/version_defaults.mk"
 FOXCONF="scripts/OFRP/build/make/core/config.mk"
 
 Patch_OFRP_Settings() {
-if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "336,372 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
+if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
 sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $FOXADVANCEDXML
 sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $FOXADVANCEDXML
 # sed -i "s/Roboto/GoogleSans/g" $FOXFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $FOXFONTXML
