@@ -16,6 +16,7 @@ FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/adv
 FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
 FOXVARSXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
 FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
+FOXSDK="scripts/OFRP/build/make/core/version_defaults.mk"
 
 Patch_OFRP_Settings() {
 if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "336,372 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
@@ -38,6 +39,7 @@ sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
 done
+sed -i "s/28/29/g" $FOXSDK
 }
 
 Default_OFRP_Settings() {
@@ -155,9 +157,9 @@ cp -f $COMPILER/unrootmagisk.zip $SHRPFILES/unrootmagisk.zip
 Build() {
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
-beryllium) VOFRP="$BUILD_DATE-(14)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(22)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-vince) VOFRP="$BUILD_DATE-(7)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+beryllium) VOFRP="$BUILD_DATE-(15)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+dipper) VOFRP="$BUILD_DATE-(23)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+vince) VOFRP="$BUILD_DATE-(8)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Name; exit 0;;
 esac
 case $RECOVERY_TYPE in
