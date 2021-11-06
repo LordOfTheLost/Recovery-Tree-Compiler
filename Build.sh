@@ -17,6 +17,7 @@ FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.
 FOXVARSXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
 FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
 FOXSDK="scripts/OFRP/build/make/core/version_defaults.mk"
+FOXCONF="scripts/OFRP/build/make/core/config.mk"
 
 Patch_OFRP_Settings() {
 if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "336,372 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
@@ -39,7 +40,7 @@ sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
 done
-sed -i "s/28/29/g" $FOXSDK
+sed -i "s/28/29/g" $FOXSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $FOXCONF
 }
 
 Default_OFRP_Settings() {
