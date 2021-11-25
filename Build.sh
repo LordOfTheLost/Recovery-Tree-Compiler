@@ -1,53 +1,57 @@
 RECOVERY_TYPE=$1; DEVICE=$2; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).21"; KERNEL="prebuilt/Image.tar.xz"
+if [ -d OFRP ]; then; FPOFRP=OFRP; else FPOFRP=scripts/OFRP; fi
+if [ -d SHRP ]; then; FPSHRP=SHRP;; else FPSHRP=scripts/SHRP; fi
+if [ -d TWRP ]; then; FPTWRP=TWRP; else FPTWRP=scripts/TWRP; fi
+if [ -d PBRP ]; then; FPPBRP=PBRP; else FPPBRP=scripts/PBRP; fi
 COMPILER="Compiler"
-FOXRECOVERY="scripts/OFRP/vendor/recovery"
-SHRPRECOVERY="scripts/SHRP/vendor/shrp"
+OFRPRECOVERY="$FPOFRP/vendor/recovery"
+SHRPRECOVERY="$FPSHRP/vendor/shrp"
 SHRPSH="$SHRPRECOVERY/shrp_final.sh"
-SHRPENVSH="scripts/SHRP/build/make/shrp/shrpEnv.sh"
-FOXFILES="$FOXRECOVERY/FoxFiles"
+SHRPENVSH="$FPSHRP/build/make/shrp/shrpEnv.sh"
+OFRPFILES="$OFRPRECOVERY/FoxFiles"
 SHRPFILES="$SHRPRECOVERY/extras"
-FOXDEVICE="scripts/OFRP/device"
-SHRPDEVICE="scripts/SHRP/device"
-TWRPDEVICE="scripts/TWRP/device"
-PBRPDEVICE="scripts/PBRP/device"
-FOXLANGUAGES="scripts/OFRP/bootable/recovery/gui/theme/common/languages"
-FOXFONTXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
-FOXADVANCEDXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
-FOXFILESXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
-FOXVARSXML="scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
-FOXINSTALLER="$FOXRECOVERY/installer/META-INF/com/google/android/update-binary"
-FOXSDK="scripts/OFRP/build/make/core/version_defaults.mk"
-FOXCONF="scripts/OFRP/build/make/core/config.mk"
+OFRPDEVICE="$FPOFRP/device"
+SHRPDEVICE="$FPSHRP/device"
+TWRPDEVICE="$FPTWRP/device"
+PBRPDEVICE="$FPPBRP/device"
+OFRPLANGUAGES="$FPOFRP/bootable/recovery/gui/theme/common/languages"
+OFRPFONTXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
+OFRPADVANCEDXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
+OFRPFILESXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
+OFRPVARSXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
+OFRPINSTALLER="$OFRPRECOVERY/installer/META-INF/com/google/android/update-binary"
+OFRPSDK="$FPOFRP/build/make/core/version_defaults.mk"
+OFRPCONF="$FPOFRP/build/make/core/config.mk"
 
 Patch_OFRP_Settings() {
-if [ ! -f $FOXRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $FOXADVANCEDXML; touch $FOXRECOVERY/ADVANCEDXML; fi
-sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $FOXADVANCEDXML
-sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $FOXADVANCEDXML
-# sed -i "s/Roboto/GoogleSans/g" $FOXFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $FOXFONTXML
-sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"0\"\/>/g" $FOXADVANCEDXML
-sed -i "/name=\"{@more}\"/I,+4 d" $FOXADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXADVANCEDXML
-sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $FOXADVANCEDXML
-sed -i "/name=\"{@more}\"/I,+4 d" $FOXFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $FOXFILESXML
-sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $FOXFILESXML
-sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $FOXVARSXML
-sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $FOXVARSXML
-sed -i "s/value=\"\/data\/app\"/value=\"notset\"/g" $FOXVARSXML
-sed -i "s/<variable name=\"clock_style\" value=\"0\" persist=\"1\"\/>/<variable name=\"clock_style\" value=\"1\" persist=\"1\"\/>/g" $FOXVARSXML
-for tr in $(ls $FOXLANGUAGES); do
-sed -i "s/<string name=\"dalvik\">Dalvik \/ ART Cache<\/string>/<string name=\"dalvik\">Dalvik\/ART Cache<\/string>/g" $FOXLANGUAGES/$tr
-sed -i "s/<string name=\"system_image\">System (образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $FOXLANGUAGES/$tr
-sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $FOXLANGUAGES/$tr
-sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
-sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $FOXLANGUAGES/$tr
+if [ ! -f $OFRPRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $OFRPADVANCEDXML; touch $OFRPRECOVERY/ADVANCEDXML; fi
+sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $OFRPADVANCEDXML
+sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $OFRPADVANCEDXML
+# sed -i "s/Roboto/GoogleSans/g" $OFRPFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $OFRPFONTXML
+sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"0\"\/>/g" $OFRPADVANCEDXML
+sed -i "/name=\"{@more}\"/I,+4 d" $OFRPADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPADVANCEDXML
+sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $OFRPADVANCEDXML
+sed -i "/name=\"{@more}\"/I,+4 d" $OFRPFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPFILESXML
+sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $OFRPFILESXML
+sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $OFRPVARSXML
+sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $OFRPVARSXML
+sed -i "s/value=\"\/data\/app\"/value=\"notset\"/g" $OFRPVARSXML
+sed -i "s/<variable name=\"clock_style\" value=\"0\" persist=\"1\"\/>/<variable name=\"clock_style\" value=\"1\" persist=\"1\"\/>/g" $OFRPVARSXML
+for tr in $(ls $OFRPLANGUAGES); do
+sed -i "s/<string name=\"dalvik\">Dalvik \/ ART Cache<\/string>/<string name=\"dalvik\">Dalvik\/ART Cache<\/string>/g" $OFRPLANGUAGES/$tr
+sed -i "s/<string name=\"system_image\">System (образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $OFRPLANGUAGES/$tr
+sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $OFRPLANGUAGES/$tr
+sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
+sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 done
-sed -i "s/28/29/g" $FOXSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $FOXCONF
+sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF
 }
 
 Default_OFRP_Settings() {
-cp -f $COMPILER/maintainer.png scripts/OFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
-cp -f $COMPILER/busybox-$ARCH $FOXRECOVERY/Files/busybox
-cp -f $COMPILER/unrootmagisk.zip $FOXFILES/unrootmagisk.zip
-for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $FOXFILES/$f ] || [ -d $FOXFILES/$f ]; then rm -rf $FOXFILES/$f; fi; done
+cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
+cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
+cp -f $COMPILER/unrootmagisk.zip $OFRPFILES/unrootmagisk.zip
+for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
 Default_OFRP_Vars() {
@@ -151,23 +155,23 @@ sed -i "s/XSTATUS=Official/XSTATUS=$BUILD_TYPE/g" $SHRPENVSH; sed -i "s/XSTATUS=
 }
 
 Default_SHRP_Settings() {
-for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $FOXFILES/$f ] || [ -d $FOXFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
+for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
 cp -f $COMPILER/unrootmagisk.zip $SHRPFILES/unrootmagisk.zip
 }
 
 Build() {
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
-beryllium) VOFRP="$BUILD_DATE-(15)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(23)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-vince) VOFRP="$BUILD_DATE-(8)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+beryllium) VOFRP="$BUILD_DATE-(16)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+dipper) VOFRP="$BUILD_DATE-(24)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+vince) VOFRP="$BUILD_DATE-(9)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Name; exit 0;;
 esac
 case $RECOVERY_TYPE in
-OFRP) Patch_OFRP_Settings; Default_OFRP_Settings; cd scripts/OFRP; Default_OFRP_Vars;;
-SHRP) Patch_SHRP_Settings; Default_SHRP_Settings; cd scripts/SHRP;;
-TWRP) cd scripts/TWRP;;
-PBRP) cd scripts/PBRP;;
+OFRP) Patch_OFRP_Settings; Default_OFRP_Settings; cd $FPOFRP; Default_OFRP_Vars;;
+SHRP) Patch_SHRP_Settings; Default_SHRP_Settings; cd $FPSHRP;;
+TWRP) cd $FPTWRP;;
+PBRP) cd $FPPBRP;;
 *) echo Please Write Recovery Name; exit 0;;
 esac
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
@@ -178,11 +182,8 @@ export PLATFORM_VNDK_VERSION="29"
 export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
 export PLATFORM_SDK_VERSION="29"
 export ALLOW_MISSING_DEPENDENCIES=true
-. build/envsetup.sh
-add_lunch_combo omni_$DEVICE-eng
-add_lunch_combo omni_$DEVICE-user
-add_lunch_combo omni_$DEVICE-userdebug
-lunch omni_$DEVICE-eng && mka recoveryimage
+source build/envsetup.sh
+lunch twrp_$DEVICE-eng && mka recoveryimage
 }
 
 Build
