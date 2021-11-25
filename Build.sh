@@ -1,8 +1,8 @@
 RECOVERY_TYPE=$1; DEVICE=$2; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).21"; KERNEL="prebuilt/Image.tar.xz"
-if [ -d OFRP ]; then; FPOFRP=OFRP; else FPOFRP=scripts/OFRP; fi
-if [ -d SHRP ]; then; FPSHRP=SHRP;; else FPSHRP=scripts/SHRP; fi
-if [ -d TWRP ]; then; FPTWRP=TWRP; else FPTWRP=scripts/TWRP; fi
-if [ -d PBRP ]; then; FPPBRP=PBRP; else FPPBRP=scripts/PBRP; fi
+if [ -d OFRP ]; then FPOFRP=OFRP; else FPOFRP=scripts/OFRP; fi
+if [ -d SHRP ]; then FPSHRP=SHRP; else FPSHRP=scripts/SHRP; fi
+if [ -d TWRP ]; then FPTWRP=TWRP; else FPTWRP=scripts/TWRP; fi
+if [ -d PBRP ]; then FPPBRP=PBRP; else FPPBRP=scripts/PBRP; fi
 COMPILER="Compiler"
 OFRPRECOVERY="$FPOFRP/vendor/recovery"
 SHRPRECOVERY="$FPSHRP/vendor/shrp"
