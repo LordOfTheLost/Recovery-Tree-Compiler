@@ -1,5 +1,6 @@
 RECOVERY_TYPE=$1; DEVICE=$2; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).21"; KERNEL="prebuilt/Image.tar.xz"
-if [ -d OFRP ]; then FPOFRP=OFRP; else FPOFRP=scripts/OFRP; fi
+NOFRP=false
+if [ -d OFRP ]; then FPOFRP=OFRP; NOFRP=true; else FPOFRP=scripts/OFRP; fi
 if [ -d SHRP ]; then FPSHRP=SHRP; else FPSHRP=scripts/SHRP; fi
 if [ -d TWRP ]; then FPTWRP=TWRP; else FPTWRP=scripts/TWRP; fi
 if [ -d PBRP ]; then FPPBRP=PBRP; else FPPBRP=scripts/PBRP; fi
@@ -44,7 +45,7 @@ sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 done
-sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF
+if [ $NOFRP != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
 }
 
 Default_OFRP_Settings() {
@@ -168,22 +169,42 @@ vince) VOFRP="$BUILD_DATE-(9)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Name; exit 0;;
 esac
 case $RECOVERY_TYPE in
-OFRP) Patch_OFRP_Settings; Default_OFRP_Settings; cd $FPOFRP; Default_OFRP_Vars;;
-SHRP) Patch_SHRP_Settings; Default_SHRP_Settings; cd $FPSHRP;;
-TWRP) cd $FPTWRP;;
-PBRP) cd $FPPBRP;;
+OFRP) mkdir -p $OFRPDEVICE; Patch_OFRP_Settings; Default_OFRP_Settings; cd $FPOFRP; Default_OFRP_Vars;;
+SHRP) mkdir -p $SHRPDEVICE; Patch_SHRP_Settings; Default_SHRP_Settings; cd $FPSHRP;;
+TWRP) mkdir -p $TWRPDEVICE; cd $FPTWRP;;
+PBRP) mkdir -p $PBRPDEVICE; cd $FPPBRP;;
 *) echo Please Write Recovery Name; exit 0;;
 esac
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
-# Compile it
 export PLATFORM_VERSION="16.1.0"
 export PLATFORM_SECURITY_PATCH="2099-12-31"
+if [ $NOFRP != true ]; then
 export PLATFORM_VNDK_VERSION="29"
 export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
 export PLATFORM_SDK_VERSION="29"
+fi
 export ALLOW_MISSING_DEPENDENCIES=true
+if $NOFRP; then
+if [ -f device/$DEVICE/omni_$DEVICE.mk ]; then
+mv device/$DEVICE/omni_$DEVICE.mk device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/omni_$DEVICE/twrp_$DEVICE/g" device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/\$(call inherit-product, build\/target\/product\/embedded.mk)/\$(call inherit-product, build\/make\/target\/product\/aosp_base.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/\$(call inherit-product, vendor\/omni\/config\/common.mk)/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/omni_$DEVICE.mk/twrp_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
+fi
 source build/envsetup.sh
 lunch twrp_$DEVICE-eng && mka recoveryimage
+else
+if [ -f device/$DEVICE/twrp_$DEVICE.mk ]; then
+mv device/$DEVICE/twrp_$DEVICE.mk device/$DEVICE/omni_$DEVICE.mk
+sed -i "s/twrp_$DEVICE/omni_$DEVICE/g" device/$DEVICE/omni_$DEVICE.mk
+sed -i "s/\$(call inherit-product, build\/make\/target\/product\/aosp_base.mk)/\$(call inherit-product, build\/target\/product\/embedded.mk)/g" device/$DEVICE/omni_$DEVICE.mk
+sed -i "s/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/\$(call inherit-product, vendor\/omni\/config\/common.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/twrp_$DEVICE.mk/omni_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
+fi
+. build/envsetup.sh
+lunch omni_$DEVICE-eng && mka recoveryimage
+fi
 }
 
 Build
