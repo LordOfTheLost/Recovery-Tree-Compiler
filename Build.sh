@@ -26,8 +26,8 @@ OFRPCONF="$FPOFRP/build/make/core/config.mk"
 
 Patch_OFRP_Settings() {
 if [ ! -f $OFRPRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $OFRPADVANCEDXML; touch $OFRPRECOVERY/ADVANCEDXML; fi
-sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $OFRPADVANCEDXML
-sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $OFRPADVANCEDXML
+# sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $OFRPADVANCEDXML
+# sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $OFRPADVANCEDXML
 # sed -i "s/Roboto/GoogleSans/g" $OFRPFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $OFRPFONTXML
 sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"0\"\/>/g" $OFRPADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $OFRPADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPADVANCEDXML
