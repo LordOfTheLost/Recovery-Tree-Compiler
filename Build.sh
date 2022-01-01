@@ -163,9 +163,9 @@ cp -f $COMPILER/unrootmagisk.zip $SHRPFILES/unrootmagisk.zip
 Build() {
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
-beryllium) VOFRP="$BUILD_DATE-(16)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(24)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-vince) VOFRP="$BUILD_DATE-(9)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+beryllium) VOFRP="$BUILD_DATE-(17)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+dipper) VOFRP="$BUILD_DATE-(25)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+vince) VOFRP="$BUILD_DATE-(10)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Name; exit 0;;
 esac
 case $RECOVERY_TYPE in
