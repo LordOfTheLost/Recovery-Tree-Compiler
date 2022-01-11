@@ -1,9 +1,9 @@
-RECOVERY_TYPE=$1; DEVICE=$2; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).21"; KERNEL="prebuilt/Image.tar.xz"
-NOFRP=false
-if [ -d OFRP ]; then FPOFRP=OFRP; NOFRP=true; else FPOFRP=scripts/OFRP; fi
-if [ -d SHRP ]; then FPSHRP=SHRP; else FPSHRP=scripts/SHRP; fi
-if [ -d TWRP ]; then FPTWRP=TWRP; else FPTWRP=scripts/TWRP; fi
-if [ -d PBRP ]; then FPPBRP=PBRP; else FPPBRP=scripts/PBRP; fi
+RECOVERY_TYPE=$1; DEVICE=$2; VARIANT=$3; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).22"; KERNEL="prebuilt/Image.tar.xz"
+OFRP=false; SHRP=false; TWRP=false; PBRP=false
+if [ -d OFRP ]; then FPOFRP=OFRP; OFRP=true; else FPOFRP=scripts/OFRP; fi
+if [ -d SHRP ]; then FPSHRP=SHRP; SHRP=true; else FPSHRP=scripts/SHRP; fi
+if [ -d TWRP ]; then FPTWRP=TWRP; TWRP=true; else FPTWRP=scripts/TWRP; fi
+if [ -d PBRP ]; then FPPBRP=PBRP; PBRP=true; else FPPBRP=scripts/PBRP; fi
 COMPILER="Compiler"
 OFRPRECOVERY="$FPOFRP/vendor/recovery"
 SHRPRECOVERY="$FPSHRP/vendor/shrp"
@@ -45,7 +45,7 @@ sed -i "s/<string name=\"system_image\">System (Образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 done
-if [ $NOFRP != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
+if [ $NEWV != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
 }
 
 Default_OFRP_Settings() {
@@ -156,41 +156,51 @@ sed -i "s/XSTATUS=Official/XSTATUS=$BUILD_TYPE/g" $SHRPENVSH; sed -i "s/XSTATUS=
 }
 
 Default_SHRP_Settings() {
-for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
-cp -f $COMPILER/unrootmagisk.zip $SHRPFILES/unrootmagisk.zip
+for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $SHRPFILES/$f ] || [ -d $SHRPFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
+cp -f $COMPILER/unrootmagisk.zip $SHRPFILES
 }
 
 Build() {
+case $VARIANT in
+N) NEWV=true;;
+O) NEWV=false;;
+*) echo Please Write Recovery Variant!; exit 0;;
+esac
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
 beryllium) VOFRP="$BUILD_DATE-(17)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 dipper) VOFRP="$BUILD_DATE-(25)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 vince) VOFRP="$BUILD_DATE-(10)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-*) echo Please Write Device Name; exit 0;;
+*) echo Please Write Device Code Name!; exit 0;;
 esac
 case $RECOVERY_TYPE in
 OFRP) mkdir -p $OFRPDEVICE; Patch_OFRP_Settings; Default_OFRP_Settings; cd $FPOFRP; Default_OFRP_Vars;;
 SHRP) mkdir -p $SHRPDEVICE; Patch_SHRP_Settings; Default_SHRP_Settings; cd $FPSHRP;;
 TWRP) mkdir -p $TWRPDEVICE; cd $FPTWRP;;
 PBRP) mkdir -p $PBRPDEVICE; cd $FPPBRP;;
-*) echo Please Write Recovery Name; exit 0;;
+*) echo Please Write Recovery Name!; exit 0;;
 esac
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
 export PLATFORM_VERSION="16.1.0"
 export PLATFORM_SECURITY_PATCH="2099-12-31"
-if [ $NOFRP != true ]; then
+if [ $OFRP != true ]; then
 export PLATFORM_VNDK_VERSION="29"
 export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
 export PLATFORM_SDK_VERSION="29"
 fi
 export ALLOW_MISSING_DEPENDENCIES=true
-if $NOFRP; then
+if $NEWV; then
 if [ -f device/$DEVICE/omni_$DEVICE.mk ]; then
 mv device/$DEVICE/omni_$DEVICE.mk device/$DEVICE/twrp_$DEVICE.mk
 sed -i "s/omni_$DEVICE/twrp_$DEVICE/g" device/$DEVICE/twrp_$DEVICE.mk
 sed -i "s/\$(call inherit-product, build\/target\/product\/embedded.mk)/\$(call inherit-product, build\/make\/target\/product\/aosp_base.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
 sed -i "s/\$(call inherit-product, vendor\/omni\/config\/common.mk)/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
 sed -i "s/omni_$DEVICE.mk/twrp_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
+if [ -f device/$DEVICE/recovery.fstab ]; then
+sed -i "s/TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)/recovery.fstab/#TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)/recovery.fstab/g" device/$DEVICE/BoardConfig.mk
+mkdir -p device/$DEVICE/recovery/root/system/etc
+mv device/$DEVICE/recovery.fstab device/$DEVICE/recovery/root/system/etc/twrp.fstab
+fi
 fi
 source build/envsetup.sh
 lunch twrp_$DEVICE-eng && mka recoveryimage
@@ -199,7 +209,7 @@ if [ -f device/$DEVICE/twrp_$DEVICE.mk ]; then
 mv device/$DEVICE/twrp_$DEVICE.mk device/$DEVICE/omni_$DEVICE.mk
 sed -i "s/twrp_$DEVICE/omni_$DEVICE/g" device/$DEVICE/omni_$DEVICE.mk
 sed -i "s/\$(call inherit-product, build\/make\/target\/product\/aosp_base.mk)/\$(call inherit-product, build\/target\/product\/embedded.mk)/g" device/$DEVICE/omni_$DEVICE.mk
-sed -i "s/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/\$(call inherit-product, vendor\/omni\/config\/common.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
+sed -i "s/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/\$(call inherit-product, vendor\/omni\/config\/common.mk)/g" device/$DEVICE/omni_$DEVICE.mk
 sed -i "s/twrp_$DEVICE.mk/omni_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
 fi
 . build/envsetup.sh
