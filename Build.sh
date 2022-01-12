@@ -197,7 +197,7 @@ sed -i "s/\$(call inherit-product, build\/target\/product\/embedded.mk)/\$(call 
 sed -i "s/\$(call inherit-product, vendor\/omni\/config\/common.mk)/\$(call inherit-product, vendor\/twrp\/config\/common.mk)/g" device/$DEVICE/twrp_$DEVICE.mk
 sed -i "s/omni_$DEVICE.mk/twrp_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
 if [ -f device/$DEVICE/recovery.fstab ]; then
-sed -i "s/TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)/recovery.fstab/#TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)/recovery.fstab/g" device/$DEVICE/BoardConfig.mk
+sed -i "s/TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)\/recovery.fstab/\#TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)\/recovery.fstab/g" device/$DEVICE/BoardConfig.mk
 mkdir -p device/$DEVICE/recovery/root/system/etc
 mv device/$DEVICE/recovery.fstab device/$DEVICE/recovery/root/system/etc/twrp.fstab
 fi
