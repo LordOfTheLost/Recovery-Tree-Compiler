@@ -57,26 +57,26 @@ for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_
 
 Default_OFRP_Vars() {
 # Other Settings
-#export FOX_R11=1; #DEPCRECATED!
-#export FOX_ADVANCED_SECURITY=0; # This forces ADB and MTP to be disabled until after you enter the recovery (ie, until after all decryption/recovery passwords are successfully entered)
-export OF_USE_TWRP_SAR_DETECT=0; # Blyad Prosto
-export OF_SUPPORT_PRE_FLASH_SCRIPT=0; # Support running a script before flashing zips (other than ROMs). The script must be called /sbin/fox_pre_flash - toje blyad
+#export FOX_R11=1; #OBSOLETE
+export FOX_ADVANCED_SECURITY=0; # This forces ADB and MTP to be disabled until after you enter the recovery (ie, until after all decryption/recovery passwords are successfully entered)
+export OF_USE_TWRP_SAR_DETECT=0; # OBSOLETE
+export OF_SUPPORT_PRE_FLASH_SCRIPT=0; # OBSOLETE
 #export OF_VANILLA_BUILD=1
 export OF_CLASSIC_LEDS_FUNCTION=0; # Use the old R9.x Leds function
 export OF_USE_MAGISKBOOT_FOR_ALL_PATCHES=1; # If this is set, this script will also automatically set OF_USE_MAGISKBOOT to 1
 #export OF_USE_MAGISKBOOT=1; # If OF_USE_MAGISKBOOT_FOR_ALL_PATCHES is on, then you don't need to turn it on 
 export OF_FORCE_MAGISKBOOT_BOOT_PATCH_MIUI=1 # if you disable this, then enable the next line
 #export OF_NO_MIUI_PATCH_WARNING=1
-#export OF_USE_NEW_MAGISKBOOT=1; # OBSOLETE!
+#export OF_USE_NEW_MAGISKBOOT=1; # OBSOLETE
 export OF_CHECK_OVERWRITE_ATTEMPTS=1; # Check for attempts by a ROM's installer to overwrite OrangeFox with another recovery
 export FOX_RESET_SETTINGS=1
 export OF_FLASHLIGHT_ENABLE=1
-export FOX_DISABLE_APP_MANAGER=1
-#export OF_NO_TREBLE_COMPATIBILITY_CHECK=1; # Disable checking for compatibility.zip in ROMs
+export FOX_ENABLE_APP_MANAGER=0
+export OF_NO_TREBLE_COMPATIBILITY_CHECK=1; # Disable checking for compatibility.zip in ROMs
 export OF_RUN_POST_FORMAT_PROCESS=1
 
 # BACKUP
-export OF_SKIP_MULTIUSER_FOLDERS_BACKUP=0
+export OF_SKIP_MULTIUSER_FOLDERS_BACKUP=0; # OBSOLETE
 case $DEVICE in
 beryllium) export OF_QUICK_BACKUP_LIST="/boot;/data;/system_root;/vendor;";;
 dipper) export OF_QUICK_BACKUP_LIST="/boot;/data;/system_root;/vendor;";;
@@ -88,14 +88,20 @@ export FOX_USE_GREP_BINARY=0
 export FOX_DELETE_AROMAFM=1
 export FOX_DELETE_INITD_ADDON=1
 export FOX_REPLACE_BUSYBOX_PS=1
+#export FOX_REMOVE_BUSYBOX_BINARY=0
 export FOX_REMOVE_AAPT=1; # Used for FOX_DISABLE_APP MANAGER if on enable
 export FOX_USE_BASH_SHELL=0
 export FOX_ASH_IS_BASH=0
 export FOX_USE_NANO_EDITOR=0
 export FOX_USE_TAR_BINARY=0
-#export FOX_USE_ZIP_BINARY=1; # OBSOLETE!
+#export FOX_USE_ZIP_BINARY=1; # OBSOLETE
 #export FOX_DELETE_MAGISK_ADDON=1
 export FOX_USE_XZ_UTILS=0
+export OF_ENABLE_LPTOOLS=0; # This requires syncing the lptools sources (just run "repo sync" from the usual place, or follow the instructions in the error message that will be generated if the sources are missing)
+#export FOX_USE_SPECIFIC_MAGISK_ZIP=/Xlaomi/Govno.zip
+#export FOX_BUILD_BASH=0
+#export FOX_EXCLUDE_NANO_EDITOR=0
+export FOX_USE_SED_BINARY=0
 
 # OTA for custom ROMs
 export OF_SUPPORT_ALL_BLOCK_OTA_UPDATES=1; #This setting is incompatible with OF_DISABLE_MIUI_SPECIFIC_FEATURES/OF_TWRP_COMPATIBILITY_MODE/OF_VANILLA_BUILD
@@ -104,14 +110,25 @@ export OF_DISABLE_MIUI_OTA_BY_DEFAULT=1
 
 # Encryption
 export OF_PATCH_AVB20=1; # Patch AVB 2.0 so that OrangeFox is not replaced by stock recovery
-export OF_OTA_RES_DECRYPT=1; # Decrypt internal storage (instead bailing out with an error) during MIUI OTA restore
-export OF_DONT_PATCH_ENCRYPTED_DEVICE=1
-export OF_KEEP_DM_VERITY=1
-export OF_DISABLE_FORCED_ENCRYPTION=1
-#export OF_KEEP_FORCED_ENCRYPTION=1
+export OF_OTA_RES_DECRYPT=0; # Decrypt internal storage (instead bailing out with an error) during MIUI OTA restore
+#export OF_DONT_PATCH_ENCRYPTED_DEVICE=1; # Set to 1 to avoid applying the forced-encryption patches on encrypted devices
+#export OF_KEEP_DM_VERITY=1; # Set to 1 to *UNTICK* the OrangeFox "Disable DM-Verity" box on every bootup
+export OF_FORCE_DISABLE_DM_VERITY_FORCED_ENCRYPTION=1; # Set to 1 to **TICK** both the OrangeFox "Disable DM-Verity" and "Disable Forced Encryption" boxes on every bootup
+#export OF_KEEP_DM_VERITY_FORCED_ENCRYPTION=1; # Set to 1 to *UNTICK* both the OrangeFox "Disable DM-Verity" and "Disable Forced Encryption" boxes on every bootup
+#export OF_FORCE_DISABLE_FORCED_ENCRYPTION=1; # Set to 1 to **TICK** the OrangeFox "Disable Forced Encryption" box on every bootup
+#export OF_KEEP_FORCED_ENCRYPTION=1; # Set to 1 to *UNTICK* the OrangeFox "Disable Forced Encryption" box on every bootup
+#export OF_DISABLE_FORCED_ENCRYPTION=1; # Set to 1 to **TICK** the OrangeFox "Disable Forced Encryption" box by default (on fresh installation)
+#export OF_DISABLE_DM_VERITY=1; # Set to 1 to **TICK** the OrangeFox "Disable DM-Verity" box by default (on fresh installation)
+#export OF_FORCE_DISABLE_DM_VERITY=1; # Set to 1 to **TICK** the OrangeFox "Disable DM-Verity" box by default (on fresh installation)
+export OF_DISABLE_DM_VERITY_FORCED_ENCRYPTION=1; # Set to 1 to **TICK** both the OrangeFox "Disable DM-Verity" and "Disable Forced Encryption" boxes by default (on fresh installation)
+export OF_SKIP_DECRYPTED_ADOPTED_STORAGE=1; # Set to 1 to skip adopted storage decryption (only kicks in if the installed ROM is higher than Android 11 and can prevent certain A12 bootloops)
+#export OF_NEW_MAGISKBOOT_FORCE_AVB_VERIFY=1; # OBSOLETE
+export OF_SKIP_FBE_DECRYPTION=1; # Set to 1 to skip the FBE decryption routines (prevents hanging at the Fox logo or Redmi/Mi logo)
+#export OF_SKIP_FBE_DECRYPTION_SDKVERSION=31
+
 
 # Use system (ROM) fingerprint where available
-#export OF_USE_SYSTEM_FINGERPRINT=1
+#export OF_USE_SYSTEM_FINGERPRINT=1; # OBSOLETE
 
 # UI
 export OF_CLOCK_POS=0
@@ -130,18 +147,21 @@ export OF_STATUS_INDENT_RIGHT=48
 
 # DEBUG MODE
 export FOX_INSTALLER_DEBUG_MODE=0
+export OF_DONT_KEEP_LOG_HISTORY=0
 
 # Compiler
 export LC_ALL="C"
-export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1
+export FOX_USE_TWRP_RECOVERY_IMAGE_BUILDER=1; # OBSOLETE
 export FOX_USE_LZMA_COMPRESSION=1
-#export OF_DISABLE_KEYMASTER2=1
+#export OF_DISABLE_KEYMASTER2=1; # OBSOLETE
 #export OF_LEGACY_SHAR512=1
 #export FOX_JAVA8_PATH="/usr/lib/jvm/java-8-openjdk/jre/bin/java
+export OF_DISABLE_UPDATEZIP=0
 
 # Fox Version
 export FOX_VERSION=R11.1-$VOFRP
 export FOX_BUILD_TYPE=$BUILD_TYPE
+# export FOX_VARIANT=Otval
 
 # CUMTAINER
 export OF_MAINTAINER="Lord Of The Lost"
