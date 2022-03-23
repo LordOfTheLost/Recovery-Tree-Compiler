@@ -25,7 +25,7 @@ OFRPSDK="$FPOFRP/build/make/core/version_defaults.mk"
 OFRPCONF="$FPOFRP/build/make/core/config.mk"
 
 Patch_OFRP_Settings() {
-if [ ! -f $OFRPRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $OFRPADVANCEDXML; touch $OFRPRECOVERY/ADVANCEDXML; fi
+# if [ ! -f $OFRPRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $OFRPADVANCEDXML; touch $OFRPRECOVERY/ADVANCEDXML; fi
 # sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $OFRPADVANCEDXML
 # sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $OFRPADVANCEDXML
 # sed -i "s/Roboto/GoogleSans/g" $OFRPFONTXML; # sed -i "s/value=\"n\"/value=\"s\"/g" $OFRPFONTXML
@@ -46,13 +46,14 @@ sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 done
 if [ $NEWV != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
+sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox.sh
 }
 
 Default_OFRP_Settings() {
 cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
 cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
 cp -f $COMPILER/unrootmagisk.zip $OFRPFILES/unrootmagisk.zip
-for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
+for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM" "PassReset"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
 Default_OFRP_Vars() {
@@ -126,7 +127,6 @@ export OF_SKIP_DECRYPTED_ADOPTED_STORAGE=1; # Set to 1 to skip adopted storage d
 export OF_SKIP_FBE_DECRYPTION=1; # Set to 1 to skip the FBE decryption routines (prevents hanging at the Fox logo or Redmi/Mi logo)
 #export OF_SKIP_FBE_DECRYPTION_SDKVERSION=31
 
-
 # Use system (ROM) fingerprint where available
 #export OF_USE_SYSTEM_FINGERPRINT=1; # OBSOLETE
 
@@ -161,7 +161,7 @@ export OF_DISABLE_UPDATEZIP=0
 # Fox Version
 export FOX_VERSION=R11.1-$VOFRP
 export FOX_BUILD_TYPE=$BUILD_TYPE
-# export FOX_VARIANT=Otval
+export FOX_VARIANT=$OFVARIANT
 
 # CUMTAINER
 export OF_MAINTAINER="Lord Of The Lost"
@@ -182,15 +182,15 @@ cp -f $COMPILER/unrootmagisk.zip $SHRPFILES
 
 Build() {
 case $VARIANT in
-N) NEWV=true;;
-O) NEWV=false;;
+N) NEWV=true; OFVARIANT=R-SL;;
+O) NEWV=false; OFVARIANT=Q-R;;
 *) echo Please Write Recovery Variant!; exit 0;;
 esac
 case $DEVICE in
 castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
-beryllium) VOFRP="$BUILD_DATE-(17)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(25)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-vince) VOFRP="$BUILD_DATE-(10)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+beryllium) VOFRP="$BUILD_DATE-(18)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+dipper) VOFRP="$BUILD_DATE-(26)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
+vince) VOFRP="$BUILD_DATE-(11)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
 *) echo Please Write Device Code Name!; exit 0;;
 esac
 case $RECOVERY_TYPE in
