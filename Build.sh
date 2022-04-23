@@ -46,13 +46,15 @@ sed -i "s/<string name=\"vendor_image\">Vendor (образ)<\/string>/<string na
 sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string name=\"vendor_image\">Vendor Образ<\/string>/g" $OFRPLANGUAGES/$tr
 done
 if [ $NEWV != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
-sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox.sh
+[ -f $OFRPRECOVERY/OrangeFox.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox.sh
+[ -f $OFRPRECOVERY/OrangeFox_A11.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox_A11.sh
 }
 
 Default_OFRP_Settings() {
 cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
 cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
-cp -f $COMPILER/unrootmagisk.zip $OFRPFILES/unrootmagisk.zip
+cp -f $COMPILER/unrootmagisk.zip $OFRPFILES
+cp -f $COMPILER/DDVFE.zip $OFRPFILES
 for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM" "PassReset"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
@@ -203,11 +205,11 @@ esac
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
 export PLATFORM_VERSION="16.1.0"
 export PLATFORM_SECURITY_PATCH="2099-12-31"
-if [ $OFRP != true ]; then
-export PLATFORM_VNDK_VERSION="29"
-export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
-export PLATFORM_SDK_VERSION="29"
-fi
+# if [ $OFRP != true ]; then
+# export PLATFORM_VNDK_VERSION="29"
+# export PLATFORM_SYSTEMSDK_MIN_VERSION="29"
+# export PLATFORM_SDK_VERSION="29"
+# fi
 export ALLOW_MISSING_DEPENDENCIES=true
 if $NEWV; then
 if [ -f device/$DEVICE/omni_$DEVICE.mk ]; then
@@ -219,7 +221,7 @@ sed -i "s/omni_$DEVICE.mk/twrp_$DEVICE.mk/g" device/$DEVICE/AndroidProducts.mk
 if [ -f device/$DEVICE/recovery.fstab ]; then
 sed -i "s/TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)\/recovery.fstab/\#TARGET_RECOVERY_FSTAB := \$(LOCAL_PATH)\/recovery.fstab/g" device/$DEVICE/BoardConfig.mk
 mkdir -p device/$DEVICE/recovery/root/system/etc
-mv device/$DEVICE/recovery.fstab device/$DEVICE/recovery/root/system/etc/twrp.fstab
+mv device/$DEVICE/recovery.fstab device/$DEVICE/recovery/root/system/etc/twrp.flags
 fi
 fi
 source build/envsetup.sh
