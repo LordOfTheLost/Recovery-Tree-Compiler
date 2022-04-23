@@ -55,7 +55,7 @@ cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi
 cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
 cp -f $COMPILER/unrootmagisk.zip $OFRPFILES
 cp -f $COMPILER/DDVFE.zip $OFRPFILES
-for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM" "PassReset"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
+for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
 Default_OFRP_Vars() {
@@ -90,7 +90,7 @@ esac
 export FOX_USE_GREP_BINARY=0
 export FOX_DELETE_AROMAFM=1
 export FOX_DELETE_INITD_ADDON=1
-export FOX_REPLACE_BUSYBOX_PS=1
+export FOX_REPLACE_BUSYBOX_PS=0
 #export FOX_REMOVE_BUSYBOX_BINARY=0
 export FOX_REMOVE_AAPT=1; # Used for FOX_DISABLE_APP MANAGER if on enable
 export FOX_USE_BASH_SHELL=0
