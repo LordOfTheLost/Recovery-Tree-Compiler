@@ -1,4 +1,5 @@
-RECOVERY_TYPE=$1; DEVICE=$2; VARIANT=$3; BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).22"; KERNEL="prebuilt/Image.tar.xz"
+MSGSD="•"; MSGDELIMITER="••••••••••••••••••••••••••••••••••••••••••••••••••"
+BUILD_TYPE=Monthly; BUILD_DATE="$( date +"%d.%m" ).22"; KERNEL="prebuilt/Image.tar.xz"
 OFRP=false; SHRP=false; TWRP=false; PBRP=false
 if [ -d OFRP ]; then FPOFRP=OFRP; OFRP=true; else FPOFRP=scripts/OFRP; fi
 if [ -d SHRP ]; then FPSHRP=SHRP; SHRP=true; else FPSHRP=scripts/SHRP; fi
@@ -10,6 +11,8 @@ SHRPRECOVERY="$FPSHRP/vendor/shrp"
 SHRPSH="$SHRPRECOVERY/shrp_final.sh"
 SHRPENVSH="$FPSHRP/build/make/shrp/shrpEnv.sh"
 OFRPFILES="$OFRPRECOVERY/FoxFiles"
+OFRPFFILES="$OFRPRECOVERY/FoxExtras/FFiles"
+OFRPFOXSTARTSH="$OFRPRECOVERY/FoxExtras/sbin/foxstart.sh"
 SHRPFILES="$SHRPRECOVERY/extras"
 OFRPDEVICE="$FPOFRP/device"
 SHRPDEVICE="$FPSHRP/device"
@@ -20,11 +23,14 @@ OFRPFONTXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/themes/font.xml"
 OFRPADVANCEDXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/advanced.xml"
 OFRPFILESXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/files.xml"
 OFRPVARSXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/resources/vars.xml"
+OFRPINSTALLXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/install.xml"
+OFRPTWRPFUNCTIONSCPP="$FPOFRP/bootable/recovery/twrp-functions.cpp"
+OFRPCUSTOMIZATIONXML="$FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/pages/customization.xml"
 OFRPINSTALLER="$OFRPRECOVERY/installer/META-INF/com/google/android/update-binary"
 OFRPSDK="$FPOFRP/build/make/core/version_defaults.mk"
 OFRPCONF="$FPOFRP/build/make/core/config.mk"
 
-Patch_OFRP_Settings() {
+OFRPPS() {
 # if [ ! -f $OFRPRECOVERY/ADVANCEDXML ]; then sed -i "351,387 d" $OFRPADVANCEDXML; touch $OFRPRECOVERY/ADVANCEDXML; fi
 # sed -i "s/<placement x=\"%col1_x_caption%\" y=\"%row3_1a_y%\"\/>/<placement x=\"%col1_x_caption%\" y=\"%row4_1a_y%\"\/>/g" $OFRPADVANCEDXML
 # sed -i "s/<placement x=\"0\" y=\"%row5_3_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/<placement x=\"0\" y=\"%row4_2a_y%\" w=\"%screen_w%\" h=\"%bl_h4%\"\/>/g" $OFRPADVANCEDXML
@@ -33,11 +39,15 @@ sed -i "s/<condition var1=\"of_hide_app_hint\" op=\"!=\" var2=\"1\"\/>/<conditio
 sed -i "/name=\"{@more}\"/I,+4 d" $OFRPADVANCEDXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPADVANCEDXML
 sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $OFRPADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $OFRPFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPFILESXML
+sed -i "/name=\"{@cust_expand_list}\"/I,+2 d" $OFRPCUSTOMIZATIONXML
+sed -i "/\/\/ device name/I,+2 d" $OFRPTWRPFUNCTIONSCPP
 sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $OFRPFILESXML
 sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $OFRPVARSXML
 sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $OFRPVARSXML
 sed -i "s/value=\"\/data\/app\"/value=\"notset\"/g" $OFRPVARSXML
+sed -i "s/		<variable name=\"row_btn3_y\" value=\"%screen_h%-729\"\/>/		<variable name=\"row_btn3_y\" value=\"%screen_h%-729\"\/>\n		<variable name=\"row_btn4_y\" value=\"%screen_h%-879\"\/>\n		<variable name=\"row_btn5_y\" value=\"%screen_h%-1029\"\/>/g" $OFRPVARSXML
 sed -i "s/<variable name=\"clock_style\" value=\"0\" persist=\"1\"\/>/<variable name=\"clock_style\" value=\"1\" persist=\"1\"\/>/g" $OFRPVARSXML
+sed -i "s/<placement x=\"0\" y=\"%row2_2a_y%\" w=\"%screen_w%\" h=\"%lb_l6%\"\/>/<placement x=\"0\" y=\"%row2_2a_y%\" w=\"%screen_w%\" h=\"%lb_l10%\"\/>/g" $OFRPINSTALLXML
 for tr in $(ls $OFRPLANGUAGES); do
 sed -i "s/<string name=\"dalvik\">Dalvik \/ ART Cache<\/string>/<string name=\"dalvik\">Dalvik\/ART Cache<\/string>/g" $OFRPLANGUAGES/$tr
 sed -i "s/<string name=\"system_image\">System (образ)<\/string>/<string name=\"system_image\">System Образ<\/string>/g" $OFRPLANGUAGES/$tr
@@ -48,17 +58,19 @@ done
 if [ $NEWV != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
 [ -f $OFRPRECOVERY/OrangeFox.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox.sh
 [ -f $OFRPRECOVERY/OrangeFox_A11.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox_A11.sh
+sed -i "/remove the \"del_pass\"/I,+10 d" $OFRPFOXSTARTSH
 }
 
-Default_OFRP_Settings() {
+OFRPDS() {
 cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
 cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
 cp -f $COMPILER/unrootmagisk.zip $OFRPFILES
 cp -f $COMPILER/DDVFE.zip $OFRPFILES
+mkdir -p $OFRPFFILES/OF_DelPass; cp -f $COMPILER/OF_DelPass.zip $OFRPFFILES/OF_DelPass
 for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
-Default_OFRP_Vars() {
+OFRPDV() {
 # Other Settings
 #export FOX_R11=1; #OBSOLETE
 export FOX_ADVANCED_SECURITY=0; # This forces ADB and MTP to be disabled until after you enter the recovery (ie, until after all decryption/recovery passwords are successfully entered)
@@ -93,8 +105,8 @@ export FOX_DELETE_INITD_ADDON=1
 export FOX_REPLACE_BUSYBOX_PS=0
 #export FOX_REMOVE_BUSYBOX_BINARY=0
 export FOX_REMOVE_AAPT=1; # Used for FOX_DISABLE_APP MANAGER if on enable
-export FOX_USE_BASH_SHELL=0
-export FOX_ASH_IS_BASH=0
+export FOX_USE_BASH_SHELL=1
+export FOX_ASH_IS_BASH=1
 export FOX_USE_NANO_EDITOR=0
 export FOX_USE_TAR_BINARY=0
 #export FOX_USE_ZIP_BINARY=1; # OBSOLETE
@@ -169,7 +181,7 @@ export FOX_VARIANT=$OFVARIANT
 export OF_MAINTAINER="Lord Of The Lost"
 }
 
-Patch_SHRP_Settings() {
+SHRPPS() {
 sed -i "s/ZIP_NAME=SHRP_v\${SHRP_VERSION}_\${SHRP_STATUS}-\${XSTATUS}_\$SHRP_DEVICE-\$SHRP_BUILD_DATE/ZIP_NAME=\"SHRP-V\${SHRP_VERSION}-$VSHRP-$BUILD_TYPE-\$SHRP_DEVICE\"/g" $SHRPSH
 sed -i "s/ADDON_ZIP_NAME=SHRP_AddonRescue_v\${SHRP_VERSION}_\$SHRP_DEVICE-\$SHRP_BUILD_DATE/ADDON_ZIP_NAME=\"SHRP-AddonRescue-V\${SHRP_VERSION}-$VSHRP-\$SHRP_DEVICE\"/g" $SHRPSH
 sed -i "s/\"buildNo\": \"\$SHRP_BUILD_DATE\"/\"buildNo\": \"$BUILD_DATE\"/g" $SHRPSH
@@ -177,31 +189,134 @@ sed -i "s/SHRP_STATUS=stable/SHRP_STATUS=Stable/g" $SHRPENVSH
 sed -i "s/XSTATUS=Official/XSTATUS=$BUILD_TYPE/g" $SHRPENVSH; sed -i "s/XSTATUS=Unofficial/XSTATUS=$BUILD_TYPE/g" $SHRPENVSH
 }
 
-Default_SHRP_Settings() {
+SHRPDS() {
 for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $SHRPFILES/$f ] || [ -d $SHRPFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
 cp -f $COMPILER/unrootmagisk.zip $SHRPFILES
 }
 
-Build() {
-case $VARIANT in
-N) NEWV=true; OFVARIANT=R-SL;;
-O) NEWV=false; OFVARIANT=Q-R;;
-*) echo Please Write Recovery Variant!; exit 0;;
+OPTIONSD() {
+local opt=""
+while :; do
+echo -n "$MSGDELIMITER
+$MSGSD Choose Device Varian:
+$MSGDELIMITER
+1) Dipper
+2) Beryllium
+3) Vince
+4) Castor
+5) Quit
+$MSGDELIMITER
+?)"
+read opt
+echo
+case $opt in
+1) DEVICE=dipper; VOFRP="$BUILD_DATE-(26)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
+2) DEVICE=beryllium; VOFRP="$BUILD_DATE-(18)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
+3) DEVICE=vince; VOFRP="$BUILD_DATE-(11)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
+4) DEVICE=castor; VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm"; OPTIONSV;;
+5) exit 0;;
+*) OPTIONSD;;
 esac
-case $DEVICE in
-castor) VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm";;
-beryllium) VOFRP="$BUILD_DATE-(18)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-dipper) VOFRP="$BUILD_DATE-(26)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-vince) VOFRP="$BUILD_DATE-(11)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64";;
-*) echo Please Write Device Code Name!; exit 0;;
+break
+done
+echo -en "\n$MSGSD Press <Enter> To Continue, \"q <Enter>\" To Quit "
+read opt
+[ -z "$opt" ] || exit 0
+echo
+OPTIONSD
+}
+
+OPTIONSV() {
+local opt=""
+while :; do
+echo -n "$MSGDELIMITER
+$MSGSD Choose Build Varian:
+$MSGDELIMITER
+1) Last
+2) EOL
+3) Quit
+$MSGDELIMITER
+?)"
+read opt
+echo
+case $opt in
+1) NEWV=true; OFVARIANT=R-SL; OPTIONCB;;
+2) NEWV=false; OFVARIANT=Q-R; OPTIONCB;;
+3) exit 0;;
+*) OPTIONSV;;
 esac
-case $RECOVERY_TYPE in
-OFRP) mkdir -p $OFRPDEVICE; Patch_OFRP_Settings; Default_OFRP_Settings; cd $FPOFRP; Default_OFRP_Vars;;
-SHRP) mkdir -p $SHRPDEVICE; Patch_SHRP_Settings; Default_SHRP_Settings; cd $FPSHRP;;
-TWRP) mkdir -p $TWRPDEVICE; cd $FPTWRP;;
-PBRP) mkdir -p $PBRPDEVICE; cd $FPPBRP;;
-*) echo Please Write Recovery Name!; exit 0;;
+break
+done
+echo -en "\n$MSGSD Press <Enter> To Continue, \"q <Enter>\" To Quit "
+read opt
+[ -z "$opt" ] || exit 0
+echo
+OPTIONSV
+}
+
+OPTIONCB() {
+local opt=""
+while :; do
+echo -n "$MSGDELIMITER
+$MSGSD Choose Clear Or Dirty Build:
+$MSGDELIMITER
+1) Clear Build
+2) Dirty Build
+3) Quit
+$MSGDELIMITER
+?)"
+read opt
+echo
+case $opt in
+1) CORB=true; OPTIONSR;;
+2) CORB=false; OPTIONSR;;
+3) exit 0;;
+*) OPTIONCB;;
 esac
+break
+done
+echo -en "\n$MSGSD Press <Enter> To Continue, \"q <Enter>\" To Quit "
+read opt
+[ -z "$opt" ] || exit 0
+echo
+OPTIONCB
+}
+
+OPTIONSR() {
+local opt=""
+while :; do
+echo -n "$MSGDELIMITER
+$MSGSD Choose Recovery Varian:
+$MSGDELIMITER
+1) OFRP
+2) SHRP
+3) TWRP
+4) PBRP
+5) Quit
+$MSGDELIMITER
+?)"
+read opt
+echo
+case $opt in
+1) mkdir -p $OFRPDEVICE; OFRPPS; OFRPDS; cd $FPOFRP; OFRPDV; BASE;;
+2) mkdir -p $SHRPDEVICE; SHRPPS; SHRPDS; cd $FPSHRP; BASE;;
+3) mkdir -p $TWRPDEVICE; cd $FPTWRP; BASE;;
+4) mkdir -p $PBRPDEVICE; cd $FPPBRP; BASE;;
+5) exit 0;;
+*) OPTIONSR;;
+esac
+break
+done
+echo -en "\n$MSGSD Press <Enter> To Continue, \"q <Enter>\" To Quit "
+read opt
+[ -z "$opt" ] || exit 0
+echo
+OPTIONSR
+}
+
+BASE() {
+$CORB && rm -rf out
+sudo chmod -R 777 device/*
 if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi; if [ -f device/$DEVICE/$KERNEL ]; then tar -xf device/$DEVICE/$KERNEL -C device/$DEVICE/prebuilt; rm -f device/$DEVICE/$KERNEL; fi
 export PLATFORM_VERSION="16.1.0"
 export PLATFORM_SECURITY_PATCH="2099-12-31"
@@ -237,7 +352,7 @@ fi
 . build/envsetup.sh
 lunch omni_$DEVICE-eng && mka recoveryimage
 fi
+exit 0
 }
 
-Build
-exit 0
+OPTIONSD
