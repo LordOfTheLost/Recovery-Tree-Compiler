@@ -41,6 +41,8 @@ sed -i "/<condition var1=\"utils_show\" var2=\"1\"\/>/d" $OFRPADVANCEDXML
 sed -i "/name=\"{@more}\"/I,+4 d" $OFRPFILESXML; sed -i "/name=\"{@hide}\"/I,+5 d" $OFRPFILESXML
 sed -i "/name=\"{@cust_expand_list}\"/I,+2 d" $OFRPCUSTOMIZATIONXML
 sed -i "/\/\/ device name/I,+2 d" $OFRPTWRPFUNCTIONSCPP
+sed -i "s/gui_print(\"\* %s\\\n\", rom_desc.c_str());/gui_print(\"Build Type: %s\\\n\", rom_desc.c_str());/g" $OFRPTWRPFUNCTIONSCPP
+sed -i "s/gui_print(\"\* (%s)\\\n\", incr_version.c_str());/gui_print(\"Incremental Version: (%s)\\\n\", incr_version.c_str());/g" $OFRPTWRPFUNCTIONSCPP
 sed -i "/<condition var1=\"opts_show\" var2=\"1\"\/>/d" $OFRPFILESXML
 sed -i "s/value=\"\/system\/app\"/value=\"notset\"/g" $OFRPVARSXML
 sed -i "s/value=\"\/system\/framework\"/value=\"notset\"/g" $OFRPVARSXML
@@ -57,7 +59,7 @@ sed -i "s/<string name=\"vendor_image\">Vendor (Образ)<\/string>/<string na
 done
 if [ $NEWV != true ]; then sed -i "s/28/29/g" $OFRPSDK; sed -i "s/sepolicy_major_vers := 28/sepolicy_major_vers := 29/g" $OFRPCONF; fi
 [ -f $OFRPRECOVERY/OrangeFox.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox.sh
-[ -f $OFRPRECOVERY/OrangeFox_A11.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox_A11.sh
+[ -f $OFRPRECOVERY/OrangeFox_A11.sh ] && sed -i "s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g;s/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"_\"\$FOX_VARIANT\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"/FOX_OUT_NAME=OrangeFox-\"\$FOX_BUILD\"-\"\$FOX_BUILD_TYPE\"-\"\$FOX_DEVICE\"-\"(\$FOX_VARIANT)\"/g" $OFRPRECOVERY/OrangeFox_A11.sh
 sed -i "/remove the \"del_pass\"/I,+10 d" $OFRPFOXSTARTSH
 }
 
@@ -65,8 +67,9 @@ OFRPDS() {
 cp -f $COMPILER/maintainer.png $FPOFRP/bootable/recovery/gui/theme/portrait_hdpi/images/Default/About
 cp -f $COMPILER/busybox-$ARCH $OFRPRECOVERY/Files/busybox
 cp -f $COMPILER/unrootmagisk.zip $OFRPFILES
+[ $DEVICE = dipper ] && cp -f $COMPILER/cust_fix.zip $OFRPFILES
 cp -f $COMPILER/DDVFE.zip $OFRPFILES
-mkdir -p $OFRPFFILES/OF_DelPass; cp -f $COMPILER/OF_DelPass.zip $OFRPFFILES/OF_DelPass
+mkdir -p $OFRPFFILES/OF_DelPass; cp -f $COMPILER/PassReset.zip $OFRPFFILES/OF_DelPass//OF_DelPass.zip
 for f in "Magisk.zip" "GoogleSans.zip" "SubstratumRescue.zip" "SubstratumRescue_Legacy.zip" "OF_initd.zip" "AromaFM"; do if [ -f $OFRPFILES/$f ] || [ -d $OFRPFILES/$f ]; then rm -rf $OFRPFILES/$f; fi; done
 }
 
@@ -192,6 +195,7 @@ sed -i "s/XSTATUS=Official/XSTATUS=$BUILD_TYPE/g" $SHRPENVSH; sed -i "s/XSTATUS=
 SHRPDS() {
 for f in "Disable_Dm-Verity_ForceEncrypt.zip" "c_magisk.zip" "unmagisk.zip" "s_non_oms.zip" "s_oms.zip"; do if [ -f $SHRPFILES/$f ] || [ -d $SHRPFILES/$f ]; then rm -rf $SHRPFILES/$f; fi; done
 cp -f $COMPILER/unrootmagisk.zip $SHRPFILES
+[ $DEVICE = dipper ] && cp -f $COMPILER/cust_fix.zip $SHRPFILES
 }
 
 OPTIONSD() {
@@ -206,11 +210,11 @@ $MSGDELIMITER
 4) Castor
 5) Quit
 $MSGDELIMITER
-?)"
+?) "
 read opt
 echo
 case $opt in
-1) DEVICE=dipper; VOFRP="$BUILD_DATE-(26)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
+1) DEVICE=dipper; VOFRP="$BUILD_DATE-(27)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
 2) DEVICE=beryllium; VOFRP="$BUILD_DATE-(18)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
 3) DEVICE=vince; VOFRP="$BUILD_DATE-(11)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm64"; OPTIONSV;;
 4) DEVICE=castor; VOFRP="$BUILD_DATE-(1)"; VSHRP="$BUILD_DATE-(1)"; ARCH="arm"; OPTIONSV;;
@@ -232,17 +236,19 @@ while :; do
 echo -n "$MSGDELIMITER
 $MSGSD Choose Build Varian:
 $MSGDELIMITER
-1) Last
-2) EOL
-3) Quit
+1) 9.0
+2) 11.1
+3) 12.1
+4) Quit
 $MSGDELIMITER
-?)"
+?) "
 read opt
 echo
 case $opt in
-1) NEWV=true; OFVARIANT=R-SL; OPTIONCB;;
-2) NEWV=false; OFVARIANT=Q-R; OPTIONCB;;
-3) exit 0;;
+1) NEWV=false; OFVARIANT=Q-R; OPTIONCB;;
+2) NEWV=true; OFVARIANT=R-SL; OPTIONCB;;
+3) NEWV=true; OFVARIANT=SL-T; OPTIONCB;;
+4) exit 0;;
 *) OPTIONSV;;
 esac
 break
@@ -264,7 +270,7 @@ $MSGDELIMITER
 2) Dirty Build
 3) Quit
 $MSGDELIMITER
-?)"
+?) "
 read opt
 echo
 case $opt in
@@ -294,7 +300,7 @@ $MSGDELIMITER
 4) PBRP
 5) Quit
 $MSGDELIMITER
-?)"
+?) "
 read opt
 echo
 case $opt in
